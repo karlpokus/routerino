@@ -23,16 +23,14 @@ func TestRoutes(t *testing.T) {
   })
 }
 
-func ExampleTest() {
-	func TestRoutes(t *testing.T) {
-	  routest.Test(t, []routest.Data{
-	    {
-	      "hi",
-	      nil,
-	      hi(),
-	      200,
-	      []byte("hi"),
-	    },
-	  })
-	}
+func ExampleTest(t *testing.T) {
+	Test(t, []Data{
+	  {
+	    "hi",
+	    nil,
+	    hi(),
+	    200,
+	    []byte("hi"),
+	  },
+	})
 }
