@@ -2,7 +2,7 @@
 package routest
 
 import (
-  "bytes"
+	"bytes"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -11,20 +11,29 @@ import (
 )
 
 type Data struct {
-  Name string
-	RequestBody io.Reader
-	Handler http.HandlerFunc
-	Status int
-	ResponseBody []byte
+	Name, Method, Path string
+	RequestBody        io.Reader
+	Handler            http.Handler
+	Status             int
+	ResponseBody       []byte
 }
 
+type RegisterFunc func() http.Handler
+
 // Test runs assertion tests on data and reports to t
-func Test(t *testing.T, data []Data) {
-  for _, d := range data {
+func Test(t *testing.T, fn RegisterFunc, data []Data) {
+	var handler http.Handler
+	if fn != nil {
+		handler = fn()
+	}
+	for _, d := range data {
 		t.Run(d.Name, func(t *testing.T) {
-			r := httptest.NewRequest("GET", "/", d.RequestBody)
+			r := httptest.NewRequest(d.Method, d.Path, d.RequestBody)
 			w := httptest.NewRecorder()
-			d.Handler(w, r)
+			if d.Handler != nil {
+				handler = d.Handler
+			}
+			handler.ServeHTTP(w, r)
 			res := w.Result()
 			body, _ := ioutil.ReadAll(res.Body)
 			if res.StatusCode != d.Status {

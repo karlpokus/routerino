@@ -1,34 +1,70 @@
 # routest
-Fast and easy testing of your http api. Works with the stdlibs `testing` pkg.
+Fast and easy way of testing your http api. Works with the stdlibs `testing` pkg.
 
 [![GoDoc](https://godoc.org/github.com/karlpokus/routest?status.svg)](https://godoc.org/github.com/karlpokus/routest)
 
 # usage
+Test a route
 ```go
 import (
-	"testing"
-	"net/http"
+	// ...
 	"github.com/karlpokus/routest"
 )
 
-func hi() http.HandlerFunc {
+func hi(s string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("hi"))
+		fmt.Fprintf(w, "hi %s", s)
 	}
 }
 
-func TestRoutes(t *testing.T) {
-  routest.Test(t, []routest.Data{
-    {
-      "hi",
-      nil,
-      hi(),
-      200,
-      []byte("hi"),
-    },
-  })
+func TestRoute(t *testing.T) {
+	routest.Test(t, nil, []routest.Data{
+		{
+			"hi from route",
+			"GET",
+			"/",
+			nil,
+			hi("bob"),
+			200,
+			[]byte("hi bob"),
+		},
+	})
 }
 ```
+Test registered routes
+```go
+import (
+	// ...
+	"github.com/karlpokus/routest"
+	"github.com/julienschmidt/httprouter"
+)
+
+func Greet(w http.ResponseWriter, r *http.Request) {
+	params := httprouter.ParamsFromContext(r.Context())
+	fmt.Fprintf(w, "hello %s", params.ByName("user"))
+}
+
+func TestRouter(t *testing.T) {
+	routest.Test(t, func() http.Handler {
+		router := httprouter.New()
+		router.HandlerFunc("GET", "/greet/:user", Greet)
+		return router
+	}, []routest.Data{
+		{
+			"Greet from router",
+			"GET",
+			"/greet/bob",
+			nil,
+			nil, // use router as handler
+			200,
+			[]byte("hello bob"),
+		},
+	})
+}
+```
+
+# todos
+- [x] allow for custom server/router to register as handler
 
 # license
 MIT
