@@ -65,6 +65,7 @@ func TestRouter(t *testing.T) {
 
 # todos
 - [x] allow for custom server/router to register as handler
+- [x] fix v2 module path
 
 # license
 MIT
