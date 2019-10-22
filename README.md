@@ -3,12 +3,17 @@ Fast and easy way of testing your http api. Works with the stdlibs `testing` pkg
 
 [![GoDoc](https://godoc.org/github.com/karlpokus/routest?status.svg)](https://godoc.org/github.com/karlpokus/routest)
 
+# install
+```bash
+$ go get github.com/karlpokus/routest/v2
+```
+
 # usage
 Test a route
 ```go
 import (
 	// ...
-	"github.com/karlpokus/routest"
+	"github.com/karlpokus/routest/v2"
 )
 
 func hi(s string) http.HandlerFunc {
@@ -35,7 +40,7 @@ Test registered routes
 ```go
 import (
 	// ...
-	"github.com/karlpokus/routest"
+	"github.com/karlpokus/routest/v2"
 	"github.com/julienschmidt/httprouter"
 )
 
