@@ -1,7 +1,7 @@
 # routest
 Fast and easy way of testing your http api. Works with the stdlibs `testing` pkg.
 
-[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/karlpokus/routest/v2@v2.1.0)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/karlpokus/routest/v2)
 
 # install
 ```bash
