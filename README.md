@@ -1,7 +1,7 @@
 # routest
 Fast and easy way of testing your http api. Works with the stdlibs `testing` pkg.
 
-[![GoDoc](https://godoc.org/github.com/karlpokus/routest?status.svg)](https://godoc.org/github.com/karlpokus/routest)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/karlpokus/routest/v2@v2.1.0)
 
 # install
 ```bash
@@ -18,6 +18,7 @@ import (
 
 func hi(s string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Etag", "abc")
 		fmt.Fprintf(w, "hi %s", s)
 	}
 }
@@ -25,13 +26,14 @@ func hi(s string) http.HandlerFunc {
 func TestRoute(t *testing.T) {
 	routest.Test(t, nil, []routest.Data{
 		{
-			"hi from route",
-			"GET",
-			"/",
-			nil,
-			hi("bob"),
-			200,
-			[]byte("hi bob"),
+			Name: "hi from route",
+			Path: "/",
+			Handler: hi("bob"),
+			Status: 200,
+			ResponseBody: []byte("hi bob"),
+			ResponseHeader: http.Header{
+				"Etag": []string{"abc"},
+			},
 		},
 	})
 }
@@ -56,13 +58,11 @@ func TestRouter(t *testing.T) {
 		return router
 	}, []routest.Data{
 		{
-			"Greet from router",
-			"GET",
-			"/greet/bob",
-			nil,
-			nil, // use router as handler
-			200,
-			[]byte("hello bob"),
+			Name: "Greet from router",
+			Method: "GET",
+			Path: "/greet/bob",
+			Status: 200,
+			ResponseBody: []byte("hello bob"),
 		},
 	})
 }
@@ -71,6 +71,8 @@ func TestRouter(t *testing.T) {
 # todos
 - [x] allow for custom server/router to register as handler
 - [x] fix v2 module path
+- [x] Add http.Header to Data
+- [x] Make some Data fields optional
 
 # license
 MIT

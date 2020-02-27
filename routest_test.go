@@ -11,6 +11,11 @@ import (
 
 func hi(s string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("serious") == "error" {
+			http.Error(w, "error", 500)
+			return
+		}
+		w.Header().Set("Etag", "abc")
 		fmt.Fprintf(w, "hi %s", s)
 	}
 }
@@ -23,13 +28,26 @@ func Greet(w http.ResponseWriter, r *http.Request) {
 func TestRoute(t *testing.T) {
 	Test(t, nil, []Data{
 		{
-			"hi from route",
-			"GET",
-			"/",
-			nil,
-			hi("bob"),
-			200,
-			[]byte("hi bob"),
+			Name:         "hi from route",
+			Method:       "GET",
+			Path:         "/",
+			Handler:      hi("bob"),
+			Status:       200,
+			ResponseBody: []byte("hi bob"),
+			ResponseHeader: http.Header{
+				"Etag": []string{"abc"},
+			},
+		},
+		{
+			Name:   "Trigger error",
+			Method: "GET",
+			Path:   "/",
+			RequestHeader: http.Header{
+				"serious": []string{"error"},
+			},
+			Handler:      hi(""),
+			Status:       500,
+			ResponseBody: []byte("error"),
 		},
 	})
 }
@@ -41,13 +59,10 @@ func TestRouter(t *testing.T) {
 		return router
 	}, []Data{
 		{
-			"Greet from router",
-			"GET",
-			"/greet/bob",
-			nil,
-			nil,
-			200,
-			[]byte("hello bob"),
+			Name:         "Greet from router",
+			Method:       "GET",
+			Path:         "/greet/bob",
+			ResponseBody: []byte("hello bob"),
 		},
 	})
 }
@@ -69,8 +84,10 @@ func TestServer(t *testing.T) {
 			"/hi",
 			nil,
 			nil,
+			nil,
 			200,
 			[]byte("hi bob"),
+			nil,
 		},
 	})
 }
@@ -78,13 +95,12 @@ func TestServer(t *testing.T) {
 func ExampleTest_route(t *testing.T) {
 	Test(t, nil, []Data{
 		{
-			"hi",
-			"GET",
-			"/",
-			nil,
-			hi("bob"),
-			200,
-			[]byte("hi bob"),
+			Name:         "hi",
+			Method:       "GET",
+			Path:         "/",
+			Handler:      hi("bob"),
+			Status:       200,
+			ResponseBody: []byte("hi bob"),
 		},
 	})
 }
@@ -96,13 +112,11 @@ func ExampleTest_router(t *testing.T) {
 		return router
 	}, []Data{
 		{
-			"Greet",
-			"GET",
-			"/greet/bob",
-			nil,
-			nil, // use router as handler
-			200,
-			[]byte("hello bob"),
+			Name:         "Greet",
+			Method:       "GET",
+			Path:         "/greet/bob",
+			Status:       200,
+			ResponseBody: []byte("hello bob"),
 		},
 	})
 }
