@@ -73,6 +73,8 @@ func TestRouter(t *testing.T) {
 - [x] fix v2 module path
 - [x] Add http.Header to Data
 - [x] Make some Data fields optional
+- [ ] v3 no need for path for testing routes, no need for handler if testing a router
+- [ ] v3 remove httprouter dependency
 
 # license
 MIT
